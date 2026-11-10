@@ -1,0 +1,66 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbit
+    environment: 
+      RABBITMQ_DEFAULT_USER: experiment
+      RABBITMQ_DEFAULT_PASS: experiment
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  consumer:
+    build: ../task-consumer-service/task-consumer-service
+    cpus: 1.0
+    mem_limit: 512m
+    environment:
+      RABBIT_HOST: rabbitmq
+      PREFETCH: ${PREFETCH:-5}
+      CONCURRENCY: 1
+      BCRYPT_COST: ${BCRYPT_COST:-10}
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70"
+      REQUEUE: ${REQUEUE:-false}
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: ERROR
+    depends_on:
+      - rabbitmq
+
+  producer:
+    build: ../task-producer-service/task-producer-service
+    container_name: producer
+    cpus: 1.0
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      RABBIT_HOST: rabbitmq
+      PERSISTENT: "true"
+    depends_on:
+      - rabbitmq
+
+volumes:
+  grafana-data:

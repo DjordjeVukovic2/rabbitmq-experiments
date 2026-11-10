@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: task-producer
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: 5672
+    username: ${RABBIT_USER:experiment}
+    password: ${RABBIT_PASS:experiment}
+    publisher-confirm-type: simple
+
+producer:
+  queue: tasks
+  persistent: ${PERSISTENT:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

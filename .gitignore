@@ -1,0 +1,22 @@
+# Build
+target/
+build/
+bin/
+*.class
+*.jar
+
+# IDE (IntelliJ, Eclipse/STS, VS Code)
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+.metadata/
+.vscode/
+
+# Ostalo
+*.log
+.env
+grafana-data/
+Thumbs.db

@@ -1,0 +1,29 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: task-consumer
+  rabbitmq: 
+    host: ${RABBIT_HOST:localhost}
+    port: 5672
+    username: ${RABBIT_USER:experiment}
+    password: ${RABBIT_PASS:experiment}
+    listener:
+      simple:
+        prefetch: ${PREFETCH:5}
+        concurrency: ${CONCURRENCY:1}
+        max-concurrency: ${CONCURRENCY:1}
+        default-requeue-rejected: ${REQUEUE:false}
+
+processor:
+  queue: tasks
+  bcrypt-cost: ${BCRYPT_COST:10}
+  calibrate: ${CALIBRATE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  
